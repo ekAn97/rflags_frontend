@@ -42,7 +42,7 @@ REDIS_CLIENT=phpredis
 REDIS_HOST=127.0.0.1
 REDIS_PASSWORD=null
 REDIS_PORT=6379
-API_BASE_URL=http://db-api:8000                    #  http://<API_URL>:<API_PORT>
+API_BASE_URL=http://<server-ip>:8000                    #  http://<API_URL>:<API_PORT>
 VITE_APP_NAME="${APP_NAME}"
 PORT=7274
 EOF

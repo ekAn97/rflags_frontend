@@ -68,7 +68,7 @@
     </style>
 </head>
 
-<body class="bg-gradient-to-br from-slate-900 via-red-900/30 to-white/10 text-white min-h-screen flex flex-col">
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white min-h-screen flex flex-col">
 
     <header class="p-6 flex items-center justify-between">
         <div class="flex items-center space-x-4">

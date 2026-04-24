@@ -38,6 +38,13 @@ RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build
 RUN php artisan key:generate \
     && touch storage/logs/laravel.log
 
+RUN mkdir -p storage/framework/views \
+             storage/framework/cache/data \
+             storage/framework/sessions \
+             storage/logs \
+    && touch storage/logs/laravel.log \
+    && chmod -R 775 storage bootstrap/cache
+
 RUN chown -R www-data:www-data storage bootstrap/cache
 
 CMD ["apache2-foreground"]

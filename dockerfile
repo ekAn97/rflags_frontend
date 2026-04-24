@@ -16,24 +16,23 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
 WORKDIR /var/www/html
 
-# Install Composer binary
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-# Copy everything first
 COPY . /var/www/html
 
-# Create .env BEFORE composer install so artisan package:discover works
-RUN cp .env.example .env
+# Fix 1: correct filename is env.example, not .env.example
+# Fix 2: override drivers that would try to hit a DB at build time
+RUN cp env.example .env \
+    && sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=file/' .env \
+    && sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' .env \
+    && sed -i 's/^CACHE_STORE=.*/CACHE_STORE=file/' .env
 
-# Now composer install — post-autoload-dump scripts will find .env
 RUN composer install --no-dev --optimize-autoloader
 
-# npm build
 RUN npm ci || npm install
 RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build
 
-# Generate app key, prep storage
 RUN php artisan key:generate \
     && mkdir -p storage/logs && touch storage/logs/laravel.log
 

@@ -21,20 +21,22 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 COPY . /var/www/html
 
-# Fix 1: correct filename is env.example, not .env.example
-# Fix 2: override drivers that would try to hit a DB at build time
 RUN cp env.example .env \
     && sed -i 's/^SESSION_DRIVER=.*/SESSION_DRIVER=file/' .env \
     && sed -i 's/^QUEUE_CONNECTION=.*/QUEUE_CONNECTION=sync/' .env \
     && sed -i 's/^CACHE_STORE=.*/CACHE_STORE=file/' .env
 
-RUN composer install --no-dev --optimize-autoloader
+# Create bootstrap/cache before composer so package:discover can write to it
+RUN mkdir -p bootstrap/cache storage/logs \
+    && chmod -R 775 bootstrap/cache storage
+
+RUN php -d memory_limit=-1 /usr/local/bin/composer install --no-dev --optimize-autoloader
 
 RUN npm ci || npm install
 RUN NODE_OPTIONS="--max-old-space-size=2048" npm run build
 
 RUN php artisan key:generate \
-    && mkdir -p storage/logs && touch storage/logs/laravel.log
+    && touch storage/logs/laravel.log
 
 RUN chown -R www-data:www-data storage bootstrap/cache
 
